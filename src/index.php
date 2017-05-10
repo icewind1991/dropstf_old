@@ -14,7 +14,7 @@ $cachedDrops = apcu_fetch('dropstf_count');
 if ($cachedDrops === false) {
 	$api = new LogsAPI();
 	$drops = $api->getDropsForPlayersSince(STEAMID64, STEAMID3, SINCE);
-	apcu_store('dropstf_count', $drops);
+	apcu_store('dropstf_count', $drops, 5 * 60);
 } else {
 	$drops = $cachedDrops;
 }
