@@ -17,13 +17,17 @@ class LogsAPI {
 	}
 
 	public function getLog(int $id) {
-		$content = file_get_contents('http://logs.tf/json/' . $id);
+		$cached = apcu_fetch('log_' . $id);
+		$content = $cached ?: file_get_contents('http://logs.tf/json/' . $id);
+		if (!$cached) {
+			apcu_store('log_' . $id, $content);
+		}
 		return json_decode($content, true);
 	}
 
 	public function getDropsFromLog(int $id, string $steamId3) {
 		$log = $this->getLog($id);
-		return $log['players']['[U:1:64229260]']['drops'];
+		return $log['players'][$steamId3]['drops'];
 	}
 
 	public function getDropsForPlayersSince(string $steamId64, string $steamId3, int $since) {
