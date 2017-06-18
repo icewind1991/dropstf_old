@@ -11,7 +11,8 @@ class LogsAPI {
 
 	public function getLogsForPlayerSince(\SteamID $steamId, int $since) {
 		$allLogs = $this->getLogsForPlayer($steamId);
-		return array_filter($allLogs, function (array $log) use ($since) {
+		$steamId3 = $steamId->RenderSteam3();
+		return array_filter($allLogs, function (array $log) use ($since, $steamId3) {
 			return $log['date'] > $since;
 		});
 	}
@@ -27,13 +28,18 @@ class LogsAPI {
 
 	public function getDropsFromLog(int $id, \SteamID $steamId) {
 		$log = $this->getLog($id);
-		return $log['players'][$steamId->RenderSteam3()]['drops'];
+		$entry = $log['players'][$steamId->RenderSteam3()];
+		return isset($entry['medicstats']) ? $entry['drops'] : null;
 	}
 
 	public function getDropsForPlayersSince(\SteamID $steamId, int $since) {
 		$logs = $this->getLogsForPlayerSince($steamId, $since);
-		return [array_reduce($logs, function ($drops, $log) use ($steamId) {
-			return $drops + $this->getDropsFromLog($log['id'], $steamId);
-		}, 0), count($logs)];
+		$dropsPerLog = array_map(function (array $log) use ($steamId) {
+			return $this->getDropsFromLog($log['id'], $steamId);
+		}, $logs);
+		$dropsPerLog = array_filter($dropsPerLog, function ($drops) {
+			return !is_null($drops);
+		});
+		return [array_sum($dropsPerLog), count($dropsPerLog)];
 	}
 }
