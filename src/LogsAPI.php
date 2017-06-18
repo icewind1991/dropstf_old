@@ -3,13 +3,13 @@
 namespace DropTF;
 
 class LogsAPI {
-	public function getLogsForPlayer(string $steamId) {
-		$content = file_get_contents('http://logs.tf/json_search?player=' . $steamId);
+	public function getLogsForPlayer(\SteamID $steamId) {
+		$content = file_get_contents('http://logs.tf/json_search?player=' . $steamId->ConvertToUInt64());
 		$data = json_decode($content, true);
 		return $data['logs'];
 	}
 
-	public function getLogsForPlayerSince(string $steamId, int $since) {
+	public function getLogsForPlayerSince(\SteamID $steamId, int $since) {
 		$allLogs = $this->getLogsForPlayer($steamId);
 		return array_filter($allLogs, function (array $log) use ($since) {
 			return $log['date'] > $since;
@@ -25,15 +25,15 @@ class LogsAPI {
 		return json_decode($content, true);
 	}
 
-	public function getDropsFromLog(int $id, string $steamId3) {
+	public function getDropsFromLog(int $id, \SteamID $steamId) {
 		$log = $this->getLog($id);
-		return $log['players'][$steamId3]['drops'];
+		return $log['players'][$steamId->RenderSteam3()]['drops'];
 	}
 
-	public function getDropsForPlayersSince(string $steamId64, string $steamId3, int $since) {
-		$logs = $this->getLogsForPlayerSince($steamId64, $since);
-		return array_reduce($logs, function ($drops, $log) use ($steamId3) {
-			return $drops + $this->getDropsFromLog($log['id'], $steamId3);
-		}, 0);
+	public function getDropsForPlayersSince(\SteamID $steamId, int $since) {
+		$logs = $this->getLogsForPlayerSince($steamId, $since);
+		return [array_reduce($logs, function ($drops, $log) use ($steamId) {
+			return $drops + $this->getDropsFromLog($log['id'], $steamId);
+		}, 0), count($logs)];
 	}
 }
