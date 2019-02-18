@@ -45,6 +45,15 @@ $since->setTimestamp(SINCE);
 <head>
     <title>drops.tf - sponsored by demos.tf</title>
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+        }
+
         body {
             background-color: #222;
             color: #ccc;
@@ -97,7 +106,8 @@ $since->setTimestamp(SINCE);
 </head>
 <body>
 <p class="since">
-    Drops since <?php echo $since->format('l Y-m-d'); echo $namebit ?>
+    Drops since <?php echo $since->format('l Y-m-d');
+	echo $namebit ?>
 </p>
 <p class="drops">
 	<?php echo $drops ?>

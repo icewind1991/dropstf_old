@@ -33,7 +33,7 @@ class LogsAPI {
 	public function getDropsFromLog(int $id, \SteamID $steamId): ?int {
 		$log = $this->getLog($id);
 		$entry = $log['players'][$steamId->RenderSteam3()];
-		$drops = isset($entry['medicstats']) ? $entry['drops'] : null;
+		return isset($entry['medicstats']) ? $entry['drops'] : null;
 	}
 
 	public function getDropsForPlayersSince(\SteamID $steamId, int $since): array {
